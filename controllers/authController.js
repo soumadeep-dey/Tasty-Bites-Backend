@@ -1,4 +1,3 @@
-const { findOne } = require("../models/Food");
 const User = require("../models/User");
 const { generateToken } = require("../middlewares/jwtMiddleware");
 const nodemailer = require("nodemailer");
@@ -7,7 +6,7 @@ const authController = {
   signup: async (req, res) => {
     const data = req.body;
     try {
-      const user = await findOne({ email: data.email });
+      const user = await User.findOne({ email: data.email });
       if (user) {
         return res
           .status(400)
@@ -22,20 +21,20 @@ const authController = {
         });
       }
     } catch (err) {
-      console.log("⛔️ Internal Server Error:", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal Server Error" });
+      res.status(500).json({ success: false, message: err.message });
     }
   },
   login: async (req, res) => {
     const { email, password } = req.body;
     try {
-      const user = await findOne({email});
+      const user = await User.findOne({ email });
       if (!user || !user.comparePassword(password)) {
         return res
           .status(404)
-          .json({ success: false, message: "Invalid email or password" });
+          .json({
+            success: false,
+            message: `Internal Server Error: ${err.message}`,
+          });
       } else {
         // Generate Token
         const userPayload = {
@@ -49,11 +48,10 @@ const authController = {
             secure: true,
             sameSite: "none",
           })
-          .status(201)
+          .status(200)
           .json({ success: true, message: "User logged in" });
       }
     } catch (err) {
-      console.log("⛔️ Internal Server Error:", err);
       res.status(500).json({
         success: false,
         message: `Internal Server Error: ${err.message}`,
@@ -67,7 +65,6 @@ const authController = {
         .status(201)
         .json({ success: true, message: "User Logged Out" });
     } catch (error) {
-      console.log("⛔️ Internal Server Error:", err);
       res.status(500).json({
         success: false,
         message: `Internal Server Error: ${err.message}`,
@@ -87,7 +84,6 @@ const authController = {
         .status(200)
         .json({ success: true, message: "User Found", data: user });
     } catch (error) {
-      console.log("⛔️ Internal Server Error:", err);
       res.status(500).json({
         success: false,
         message: `Internal Server Error: ${err.message}`,
@@ -137,7 +133,6 @@ const authController = {
           .json({ success: true, message: "OTP has been sent to email" });
       }
     } catch (error) {
-      console.log("⛔️ Internal Server Error:", err);
       res.status(500).json({
         success: false,
         message: `Internal Server Error: ${err.message}`,
@@ -157,7 +152,6 @@ const authController = {
         .status(201)
         .json({ success: true, message: "Password has been updated" });
     } catch (error) {
-      console.log("⛔️ Internal Server Error:", err);
       res.status(500).json({
         success: false,
         message: `Internal Server Error: ${err.message}`,
