@@ -7,9 +7,9 @@ const authController = {
   signup: async (req, res) => {
     const data = req.body;
     try {
-      const user = await findOne(data.email);
+      const user = await findOne({ email: data.email });
       if (user) {
-        res
+        return res
           .status(400)
           .json({ success: false, message: "User already exists" });
       } else {
@@ -17,7 +17,7 @@ const authController = {
         const savedUser = await newUser.save();
         res.status(201).json({
           success: true,
-          message: "Signup successfull!",
+          message: "Signup successful!",
           data: savedUser,
         });
       }
@@ -31,7 +31,7 @@ const authController = {
   login: async (req, res) => {
     const { email, password } = req.body;
     try {
-      const user = await findOne(email);
+      const user = await findOne({email});
       if (!user || !user.comparePassword(password)) {
         return res
           .status(404)
@@ -39,7 +39,7 @@ const authController = {
       } else {
         // Generate Token
         const userPayload = {
-          id: savedUser.id,
+          id: user.id,
         };
         const token = await generateToken(userPayload);
         // Set Cookie
