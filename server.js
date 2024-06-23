@@ -8,11 +8,18 @@ const db = require("./db");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 const authRoutes = require("./routes/authRoutes");
-app.use("/api", authRoutes);
+const featureRoutes = require("./routes/featureRoutes");
+app.use("/auth", authRoutes);
+app.use("/feature", featureRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
